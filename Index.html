@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Text Response Assessment Tool — Victorian Curriculum Levels 3–9</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1a1a2e;--ink-soft:#3d3d5c;--ink-faint:#7a7a9a;--paper:#f8f7f4;--paper-mid:#eeede8;--paper-dark:#e0dfd8;--accent:#2d6a4f;--accent-light:#d8f3dc;--warm:#b5451b;--r:8px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);font-size:14px;}
+.app{max-width:1060px;margin:0 auto;padding:1.5rem 1.25rem 5rem;}
+.header{margin-bottom:1.5rem;padding-bottom:1.1rem;border-bottom:2px solid var(--ink);}
+.hdr-meta{font-size:11px;font-weight:600;color:var(--ink-faint);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:5px;}
+.header h1{font-family:'DM Serif Display',serif;font-size:26px;margin-bottom:5px;}
+.header p{font-size:13px;color:var(--ink-soft);line-height:1.65;}
+.year-row{display:flex;align-items:center;gap:10px;margin:1rem 0 0.6rem;flex-wrap:wrap;}
+.year-row label{font-size:11px;font-weight:700;color:var(--ink-soft);letter-spacing:0.05em;text-transform:uppercase;}
+.yr-btn{padding:7px 16px;border-radius:6px;border:1.5px solid #888;background:#dedede;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;color:#1a1a2e;transition:all 0.15s;}
+.yr-btn:hover{background:#cacaca;}
+.yr-btn.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}
+.legends{display:flex;flex-wrap:wrap;gap:5px;margin-top:0.6rem;}
+.chip{font-size:10px;font-weight:600;padding:2px 9px;border-radius:999px;}
+.layout{display:grid;grid-template-columns:1fr 320px;gap:1.25rem;align-items:start;}
+.category{margin-bottom:0.8rem;background:white;border-radius:var(--r);border:1px solid var(--paper-dark);overflow:hidden;}
+.cat-hdr{padding:0.7rem 0.9rem;display:flex;align-items:center;gap:0.5rem;cursor:pointer;user-select:none;background:#f0efeb;}
+.cat-hdr:hover{background:#e8e7e2;}
+.cat-icon{width:26px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.cat-info{flex:1;}
+.cat-title{font-size:13px;font-weight:700;color:#1a1a2e;}
+.cat-desc{font-size:10.5px;color:var(--ink-faint);margin-top:1px;}
+.cat-count{font-size:10px;color:var(--ink-faint);white-space:nowrap;}
+.chevron{font-size:10px;color:var(--ink-faint);transition:transform 0.2s;margin-left:4px;}
+.open .chevron{transform:rotate(180deg);}
+.slist{padding:0 0.7rem 0.7rem;background:white;}
+.slist.hidden{display:none;}
+.sbtn{width:100%;text-align:left;background:#f2f1ed;border:1.5px solid #d0cfca;cursor:pointer;padding:0;margin-bottom:4px;display:block;border-radius:5px;transition:all 0.15s;}
+.sbtn:hover{background:#e8e6e0;border-color:#999;}
+.sbtn.sel{background:var(--accent-light);border-color:var(--accent);}
+.sbtn.dim{opacity:0.3;}
+.sinner{display:flex;align-items:flex-start;gap:0.55rem;padding:0.55rem 0.65rem;}
+.chk{width:17px;height:17px;border:1.5px solid #aaa;border-radius:3px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;background:white;font-size:12px;font-weight:700;color:white;}
+.sbtn.sel .chk{background:var(--accent);border-color:var(--accent);}
+.slabel{font-size:13px;color:#1a1a2e;line-height:1.45;}
+.smeta{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;align-items:center;}
+.stag{font-size:9.5px;font-weight:600;padding:1px 6px;border-radius:999px;}
+.t-pre{background:#ebe9f5;color:#6c6c8a;}.t-uni{background:#dbeafe;color:#1d6fa4;}.t-multi{background:#d8f3dc;color:#1e7a4a;}.t-rel{background:#fff0d0;color:#a05c00;}.t-ext{background:#f5e0fb;color:#7b2d8b;}
+.dtag{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;}
+.d-read{background:#e8f4fd;color:#0c5460;}.d-write{background:#f8d7da;color:#721c24;}
+.lv{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;}
+.lv3{background:#f0ebff;color:#5a2da0;}.lv4{background:#e3f0ff;color:#1056a0;}.lv5{background:#e3f7ee;color:#1a6640;}.lv6{background:#fff3e0;color:#a05c00;}.lv7{background:#ffe8e8;color:#a02020;}.lv8{background:#f0e0ff;color:#5a1a8a;}.lv9{background:#e3f5e3;color:#1b5e20;}
+.results-panel{position:sticky;top:1rem;display:flex;flex-direction:column;gap:0.85rem;}
+.rc{background:white;border-radius:var(--r);border:1px solid var(--paper-dark);padding:1rem;}
+.rc h3{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:0.65rem;}
+.lv-row{display:flex;align-items:flex-end;gap:0.7rem;margin-bottom:0.55rem;}
+.lv-num{font-family:'DM Serif Display',serif;font-size:50px;line-height:1;}
+.lv-lbl{font-size:13px;font-weight:600;}
+.lv-sub{font-size:11px;color:var(--ink-faint);margin-top:3px;}
+.ra-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-bottom:0.5rem;}
+.ra-cell{padding:5px 2px;text-align:center;border-radius:4px;border:2px solid transparent;}
+.ra-cell.lit{border-color:currentColor;}
+.ra-lbl{font-size:8px;font-weight:700;display:block;text-transform:uppercase;letter-spacing:0.03em;}
+.ra-det{font-size:7.5px;color:var(--ink-faint);display:block;margin-top:1px;line-height:1.3;}
+.c-wb{background:#f0e0ff;color:#5a1a8a;}.c-bw{background:#dbeafe;color:#1d4e89;}.c-at{background:#d8f3dc;color:#2d6a4f;}.c-aw{background:#fde8e0;color:#b5451b;}.c-wa{background:#fff0d0;color:#7d5a00;}
+.ra-desc{font-size:11px;color:var(--ink-soft);padding:0.45rem 0.6rem;background:var(--paper);border-radius:4px;line-height:1.55;margin-bottom:0.5rem;display:none;}
+.pb-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.pb-lbl{font-size:9.5px;width:28px;flex-shrink:0;}
+.pb-track{flex:1;height:6px;background:var(--paper-mid);border-radius:999px;overflow:hidden;}
+.pb-fill{height:100%;border-radius:999px;transition:width 0.4s;}
+.pb-n{font-size:9.5px;color:var(--ink-faint);width:16px;text-align:right;}
+.narr{background:var(--paper);border-radius:5px;padding:0.7rem;font-size:12px;color:var(--ink-soft);line-height:1.75;}
+.narr strong{color:var(--ink);}
+.ns-card{background:white;border-radius:var(--r);border:1px solid var(--paper-dark);overflow:hidden;display:none;}
+.ns-hdr{padding:0.8rem 1rem 0.55rem;border-bottom:1px solid var(--paper-mid);}
+.ns-hdr h3{font-family:'DM Serif Display',serif;font-size:16px;margin-bottom:2px;}
+.ns-tabs{display:flex;border-bottom:1px solid var(--paper-mid);}
+.ns-tab{flex:1;padding:0.5rem 0.3rem;font-size:10px;font-weight:600;text-align:center;cursor:pointer;color:var(--ink-faint);border:none;background:none;font-family:'DM Sans',sans-serif;text-transform:uppercase;letter-spacing:0.04em;border-bottom:2px solid transparent;}
+.ns-tab.active{color:var(--ink);border-bottom-color:var(--ink);}
+.ns-body{padding:0.8rem 1rem;}
+.ns-grp{margin-bottom:0.8rem;}
+.ns-grp:last-child{margin-bottom:0;}
+.ns-gt{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-faint);margin-bottom:0.4rem;}
+.ns-item{display:flex;gap:7px;margin-bottom:5px;font-size:12px;line-height:1.6;color:var(--ink-soft);}
+.ns-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:6px;background:var(--accent);}
+.sel-item{font-size:11px;color:var(--ink-soft);padding:3px 0;border-bottom:1px solid var(--paper-mid);display:flex;gap:5px;line-height:1.4;}
+.sel-item:last-child{border-bottom:none;}
+.sdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.sel-empty{font-size:11px;color:var(--ink-faint);font-style:italic;}
+.reset-btn{width:100%;padding:0.65rem;border-radius:5px;border:1.5px solid #bbb;background:#e0e0e0;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;color:#1a1a2e;font-weight:500;transition:all 0.15s;}
+.reset-btn:hover{background:#ccc;}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="header">
+  <div class="hdr-meta">Victorian Curriculum · Levels 3–9 · Assessment Tool</div>
+  <h1>Text Response</h1>
+  <p>Select the student's year level, then tick every skill they are demonstrating. The tool covers both reading and interpretation and the written analytical response. It uses SOLO taxonomy to calculate Victorian Curriculum level, relative achievement, and targeted next steps.</p>
+  <div class="year-row">
+    <label>Year level</label>
+    <div id="yr-btns" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+  </div>
+  <div class="legends">
+    <span class="chip d-read">Reading &amp; interpretation</span>
+    <span class="chip d-write">Written response</span>
+    <span class="chip" style="background:#ebe9f5;color:#6c6c8a">Prestructural</span>
+    <span class="chip" style="background:#dbeafe;color:#1d6fa4">Unistructural</span>
+    <span class="chip" style="background:#d8f3dc;color:#1e7a4a">Multistructural</span>
+    <span class="chip" style="background:#fff0d0;color:#a05c00">Relational</span>
+    <span class="chip" style="background:#f5e0fb;color:#7b2d8b">Extended Abstract</span>
+  </div>
+</div>
+
+<div class="layout">
+  <div id="skill-cols"></div>
+  <div class="results-panel">
+    <div class="rc">
+      <h3>Result</h3>
+      <div class="lv-row">
+        <div class="lv-num" id="lv-num" style="color:var(--ink-faint)">—</div>
+        <div><div class="lv-lbl" id="lv-lbl">Select a year level to begin</div><div class="lv-sub" id="lv-sub"></div></div>
+      </div>
+      <div class="ra-grid">
+        <div class="ra-cell c-wb" id="ra-wb"><span class="ra-lbl">Well Below</span><span class="ra-det">~18 mths behind</span></div>
+        <div class="ra-cell c-bw" id="ra-bw"><span class="ra-lbl">Below</span><span class="ra-det">~6 mths behind</span></div>
+        <div class="ra-cell c-at" id="ra-at"><span class="ra-lbl">At Level</span><span class="ra-det">within 6 months</span></div>
+        <div class="ra-cell c-aw" id="ra-aw"><span class="ra-lbl">Above</span><span class="ra-det">~6 mths ahead</span></div>
+        <div class="ra-cell c-wa" id="ra-wa"><span class="ra-lbl">Well Above</span><span class="ra-det">~12 mths ahead</span></div>
+      </div>
+      <div class="ra-desc" id="ra-desc"></div>
+      <div id="pb-wrap" style="margin:0.55rem 0;"></div>
+      <div class="narr" id="narr">Select a year level and tick the skills this student is demonstrating.</div>
+    </div>
+    <div class="ns-card" id="ns-card">
+      <div class="ns-hdr"><h3>Next steps</h3><p style="font-size:11px;color:var(--ink-faint);">What this student should practise, revise and develop</p></div>
+      <div class="ns-tabs" id="ns-tabs"></div>
+      <div class="ns-body" id="ns-body"></div>
+    </div>
+    <div class="rc">
+      <h3>Selected <span id="sel-count" style="font-size:12px;font-weight:400;color:var(--ink-faint);"></span></h3>
+      <div id="sel-list"><div class="sel-empty">None selected.</div></div>
+    </div>
+    <button class="reset-btn" id="reset-btn">↺ Clear all</button>
+  </div>
+</div>
+</div>
+
+<script>
+var SC={pre:'#6c6c8a',uni:'#1d6fa4',multi:'#1e7a4a',rel:'#a05c00',ext:'#7b2d8b'};
+var SL={pre:'Prestructural',uni:'Unistructural',multi:'Multistructural',rel:'Relational',ext:'Extended Abstract'};
+var SR={pre:0,uni:1,multi:2,rel:3,ext:4};
+var LC={3:'#5a2da0',4:'#1056a0',5:'#1a6640',6:'#a05c00',7:'#a02020',8:'#5a1a8a',9:'#1b5e20'};
+var YE={3:3,4:4,5:5,6:6,7:7,8:8,9:9};
+
+var CATS=[
+  // ── 1. READING & UNDERSTANDING THE TEXT ───────────────────────────────────
+  {id:'read',icon:'📖',color:'#0c5460',title:'Reading and understanding the text',desc:'How the student reads, interprets and thinks about the text and its ideas',skills:[
+    {id:'r1',solo:'pre',  levels:[3],   dim:'read', label:'Retells what happened in the text without identifying a theme or idea'},
+    {id:'r2',solo:'uni',  levels:[3,4], dim:'read', label:'Identifies one main idea, theme or message in the text'},
+    {id:'r3',solo:'uni',  levels:[3,4], dim:'read', label:'Names a character and describes what they do or say'},
+    {id:'r4',solo:'multi',levels:[4,5], dim:'read', label:'Identifies more than one idea or theme in the text and can describe how they are connected'},
+    {id:'r5',solo:'multi',levels:[5,6], dim:'read', label:'Explains how a character\'s actions, words or feelings reflect a theme or idea in the text'},
+    {id:'r6',solo:'multi',levels:[5,6], dim:'read', label:'Identifies the author\'s point of view or perspective and explains how it shapes the text'},
+    {id:'r7',solo:'rel',  levels:[6,7], dim:'read', label:'Explains how the author uses characters, setting and events to develop and explore ideas'},
+    {id:'r8',solo:'rel',  levels:[7,8], dim:'read', label:'Analyses how the author constructs meaning through deliberate choices of structure, character and language'},
+    {id:'r9',solo:'rel',  levels:[8,9], dim:'read', label:'Interprets the values, assumptions and worldview implicit in the text — reading beneath the surface of what is stated'},
+    {id:'r10',solo:'ext', levels:[9],   dim:'read', label:'Critically evaluates the text — considers how context, authorial intent and reader position shape interpretation, and can articulate a personal, substantiated reading'},
+  ]},
+  // ── 2. UNDERSTANDING IDEAS, THEMES AND CONTEXT ────────────────────────────
+  {id:'ideas',icon:'💡',color:'#1d4e89',title:'Understanding ideas, themes and context',desc:'How deeply the student engages with the ideas in the text',skills:[
+    {id:'i1',solo:'uni',  levels:[3,4], dim:'read', label:'Names a theme or topic in the text (e.g. friendship, courage, belonging)'},
+    {id:'i2',solo:'multi',levels:[4,5], dim:'read', label:'Describes what the text says about a theme — can explain the theme beyond just naming it'},
+    {id:'i3',solo:'multi',levels:[5,6], dim:'read', label:'Identifies how two or more characters or events reflect different aspects of the same theme'},
+    {id:'i4',solo:'multi',levels:[6,7], dim:'read', label:'Explains how context — the time, place or culture in which the text was written — shapes the ideas in it'},
+    {id:'i5',solo:'rel',  levels:[7,8], dim:'read', label:'Analyses how the text explores tension, complexity or contradiction within a theme — ideas are not simple or one-sided'},
+    {id:'i6',solo:'rel',  levels:[8,9], dim:'read', label:'Connects the ideas in the text to broader social, cultural or historical concerns beyond the text itself'},
+    {id:'i7',solo:'ext',  levels:[9],   dim:'read', label:'Evaluates the significance of the text\'s ideas — considers what the text contributes to understanding of the human experience'},
+  ]},
+  // ── 3. CONSTRUCTING AN ANALYTICAL ARGUMENT ────────────────────────────────
+  {id:'arg',icon:'🏗️',color:'#7b2d8b',title:'Constructing an analytical argument',desc:'How the student builds and sustains a response to the text or prompt',skills:[
+    {id:'a1',solo:'pre',  levels:[3,4], dim:'write', label:'Writes about the text by describing events or characters, without forming an argument'},
+    {id:'a2',solo:'uni',  levels:[3,4], dim:'write', label:'Makes one clear claim about the text in response to a question or prompt'},
+    {id:'a3',solo:'multi',levels:[4,5], dim:'write', label:'Makes more than one claim about the text and connects them to a central idea or question'},
+    {id:'a4',solo:'multi',levels:[5,6], dim:'write', label:'Writes a clear contention — a position that responds directly to the prompt and goes beyond restating it'},
+    {id:'a5',solo:'multi',levels:[6,7], dim:'write', label:'Sustains the contention across the response — each paragraph connects back to the central argument'},
+    {id:'a6',solo:'rel',  levels:[7,8], dim:'write', label:'Builds arguments that are genuinely analytical — explains how and why, not just what, the text does'},
+    {id:'a7',solo:'rel',  levels:[8,9], dim:'write', label:'Develops nuanced arguments that acknowledge complexity — does not simply agree or disagree with the prompt but explores the tensions within it'},
+    {id:'a8',solo:'ext',  levels:[9],   dim:'write', label:'Sustains a sophisticated, coherent and original argument throughout — the essay builds cumulatively rather than listing separate points'},
+  ]},
+  // ── 4. PLANNING AND ESSAY STRUCTURE ──────────────────────────────────────
+  {id:'plan',icon:'📐',color:'#b5451b',title:'Planning and essay structure',desc:'How the student organises and sequences their written response',skills:[
+    {id:'p1',solo:'uni',  levels:[3,4], dim:'write', label:'Organises their response with a beginning, middle and end'},
+    {id:'p2',solo:'multi',levels:[4,5], dim:'write', label:'Uses paragraphs to organise different ideas, with each paragraph focused on one main point'},
+    {id:'p3',solo:'multi',levels:[5,6], dim:'write', label:'Writes an introduction that names the text, author and a central idea, and a conclusion that rounds the response off'},
+    {id:'p4',solo:'multi',levels:[6,7], dim:'write', label:'Writes topic sentences that introduce the argument of each paragraph — not just the topic'},
+    {id:'p5',solo:'rel',  levels:[7,8], dim:'write', label:'Plans the essay so that arguments build on each other — paragraphs are sequenced deliberately, not just listed'},
+    {id:'p6',solo:'rel',  levels:[7,8], dim:'write', label:'Writes an introduction with a clear contention and a conclusion that synthesises rather than just repeats the introduction'},
+    {id:'p7',solo:'ext',  levels:[8,9], dim:'write', label:'The essay has clear analytical architecture — the structure itself advances the argument, with each paragraph earning its place'},
+  ]},
+  // ── 5. USING EVIDENCE AND QUOTATION ──────────────────────────────────────
+  {id:'evid',icon:'🔍',color:'#1e7a4a',title:'Using evidence and quotation',desc:'How the student selects, embeds and analyses textual evidence',skills:[
+    {id:'e1',solo:'uni',  levels:[3,4], dim:'write', label:'Refers to the text (by paraphrasing or naming an event or character) to support a point'},
+    {id:'e2',solo:'multi',levels:[4,5], dim:'write', label:'Uses a direct quotation from the text to support a claim'},
+    {id:'e3',solo:'multi',levels:[5,6], dim:'write', label:'Embeds quotations into their own sentences rather than dropping them in as separate sentences'},
+    {id:'e4',solo:'multi',levels:[6,7], dim:'write', label:'Selects evidence that is relevant and precise — chooses the most potent part of a quote rather than long extracts'},
+    {id:'e5',solo:'rel',  levels:[7,8], dim:'write', label:'Explains evidence after citing it — analyses what the quote or reference shows, not just that it is there'},
+    {id:'e6',solo:'rel',  levels:[7,8], dim:'write', label:'Uses more than one piece of evidence per argument and shows how they work together to support the claim'},
+    {id:'e7',solo:'rel',  levels:[8,9], dim:'write', label:'Integrates evidence and analysis fluidly — the evidence and the argument are woven together, not structured as quote-then-explain'},
+    {id:'e8',solo:'ext',  levels:[9],   dim:'write', label:'Selects evidence that is deliberately chosen for its precision and resonance — close reading of specific word choices or literary techniques'},
+  ]},
+  // ── 6. METALANGUAGE AND ANALYTICAL WRITING CRAFT ─────────────────────────
+  {id:'meta',icon:'✍️',color:'#a05c00',title:'Analytical writing and metalanguage',desc:'How the student writes about the text using appropriate analytical language',skills:[
+    {id:'m1',solo:'uni',  levels:[3,4], dim:'write', label:'Uses some relevant vocabulary to write about the text (e.g. "character", "story", "idea")'},
+    {id:'m2',solo:'multi',levels:[4,5], dim:'write', label:'Uses basic metalanguage to discuss the text — names literary features such as character, setting, theme'},
+    {id:'m3',solo:'multi',levels:[5,6], dim:'write', label:'Uses analytical language to discuss authorial choice — "the author shows", "this suggests", "this reveals"'},
+    {id:'m4',solo:'multi',levels:[6,7], dim:'write', label:'Uses metalanguage to identify and discuss literary techniques — imagery, symbolism, characterisation, narrative voice, foreshadowing'},
+    {id:'m5',solo:'rel',  levels:[7,8], dim:'write', label:'Uses metalanguage purposefully — names a technique and explains what it does in this specific context and why the author chose it'},
+    {id:'m6',solo:'rel',  levels:[8,9], dim:'write', label:'Uses precise and varied analytical vocabulary — evaluative language, verbs of argument ("demonstrates", "critiques", "subverts", "illuminates")'},
+    {id:'m7',solo:'ext',  levels:[9],   dim:'write', label:'Metalanguage is integrated and sophisticated — language analysis is woven into the argument rather than named and listed separately'},
+  ]},
+];
+
+var ALL=[];
+CATS.forEach(function(c){c.skills.forEach(function(s){ALL.push(Object.assign({},s,{catColor:c.color}));});});
+
+var NS={
+  3:{
+    practise:[
+      {g:'Reading the text',i:['Read the text more than once. First read for what happens; second read for how you feel about it; third read looking for patterns and repeated ideas.','After reading, write three sentences: one about what happens, one about a character, one about an idea or feeling the text gives you.','Practise identifying the difference between what the text says (plot) and what the text is about (theme).']},
+      {g:'Writing about the text',i:['Write one sentence that begins "The author wants the reader to think about..." — this is your first step toward an argument.','Practise referring to the text in your writing: name a character and describe something they do that connects to your point.']}
+    ],
+    revise:[{g:'Key knowledge',i:['Revise what a theme is — a theme is a big idea the text explores, not just a topic. "Friendship" is a topic; "friendship is tested when people disagree" is a theme.','Revisit the difference between a character\'s actions and what those actions show — a character runs away, which shows they are afraid.','Revise basic text vocabulary: character, setting, plot, theme, author.']}],
+    develop:[{g:'Toward Level 4',i:['Begin identifying more than one idea in a text. Read it and list three different things the text makes you think about.','Practise writing a simple claim: "In this text, the author shows that [idea] is important because [reason]."','Begin to notice when different characters represent different ideas — who agrees and who disagrees in the text, and why?']}]
+  },
+  4:{
+    practise:[
+      {g:'Reading for ideas',i:['For every text you study, write down at least three themes or ideas. Then choose the one you think is most important and write two sentences explaining why.','Practise explaining a theme: do not just name it — write what the text says about it. Not "courage" but "the text shows that courage means acting even when you are afraid."','Identify the author\'s point of view: does the author seem to agree with any of the characters? How can you tell?']},
+      {g:'Writing a response',i:['Practise writing a paragraph with one main idea, one piece of evidence from the text, and one sentence explaining what the evidence shows.','Use the connective "this shows that" after every piece of evidence — it forces you to explain rather than just describe.']}
+    ],
+    revise:[{g:'Key knowledge',i:['Revise how to use a quotation: put speech marks around the exact words, and then say what it shows.','Revisit the difference between describing what a character does and analysing what it means.','Revise paragraph structure: one idea, evidence, explanation.']}],
+    develop:[{g:'Toward Level 5',i:['Begin writing a clear opening sentence for your response that states the text, the author and a central idea — not just "this text is about..."','Practise choosing the most relevant part of a quotation rather than copying out a whole sentence.','Begin to notice how different parts of the text connect — does the ending relate back to the beginning?']}]
+  },
+  5:{
+    practise:[
+      {g:'Reading analytically',i:['Before you write, annotate the text: mark moments that relate to your theme and write one word in the margin about what each one shows.','Practise identifying authorial choice: find three moments in the text and ask "why did the author include this?" — not just "what does this do?"','Read two characters against each other: how do they represent different ideas or values? What does the contrast reveal?']},
+      {g:'Writing a response',i:['Practise writing topic sentences that make a claim — not "In this paragraph I will discuss..." but "The author uses [character/event] to show that [idea]."','Embed your quotations: instead of writing the quote as a separate sentence, fold it into your own sentence. Practise this with every piece of evidence.']}
+    ],
+    revise:[{g:'Key knowledge',i:['Revise the difference between a topic sentence (what this paragraph is about) and a contention (what your whole response argues).','Revisit basic metalanguage: characterisation, setting, theme, narrative voice, imagery, symbolism. Be able to give an example of each from the text.','Revise how to write an introduction: name the text and author, introduce the central themes, state your position.']}],
+    develop:[{g:'Toward Level 6',i:['Begin writing a contention — a clear statement of your position on the prompt — at the start of your introduction.','Practise explaining how context shapes the text: when was it written, what was happening in the world, and how does that affect its ideas?','Begin to select quotations deliberately — choose the most precise and potent words, not the longest sentence.']}]
+  },
+  6:{
+    practise:[
+      {g:'Reading for authorial intent',i:['For every key moment in the text, ask: what does the author want the reader to think or feel here? Write this as a sentence before you write your analysis.','Practise identifying how setting is used: where do key events happen, and why did the author choose that setting?','Identify one tension or contradiction in the text — a character who is both sympathetic and flawed, or a theme that cuts both ways. Write a paragraph about what this tension reveals.']},
+      {g:'Argument and structure',i:['Plan your essay before you write: write your contention, then three topic sentences. Read them as a set — do they build an argument together?','Practise writing conclusions that do not just repeat the introduction: add one final insight or observation that takes the argument a step further.']}
+    ],
+    revise:[{g:'Key knowledge',i:['Revise metalanguage for literary techniques: imagery, symbolism, foreshadowing, juxtaposition, motif, characterisation, omniscient narrator, first-person narrator.','Revisit how to analyse rather than describe: description says what happens, analysis says why the author made it happen and what it means.','Revise the role of context in literary analysis — historical, social and cultural context shapes both the text and our reading of it.']}],
+    develop:[{g:'Toward Level 7',i:['Begin writing arguments that explain HOW the author creates meaning, not just WHAT the text says.','Practise sustaining your contention across the whole essay: after writing each paragraph, check that it connects back to your opening argument.','Begin to use analytical verbs: instead of "shows", try "demonstrates", "critiques", "challenges", "reveals", "suggests", "positions the reader to".']}]
+  },
+  7:{
+    practise:[
+      {g:'Close reading',i:['Practise close reading: take one sentence from the text and write a paragraph about it. What specific words are significant? What do they suggest beyond their literal meaning?','Identify the narrative voice and explain how it shapes the reader\'s relationship with the text — whose perspective do we get, and what is left out?','Write one paragraph that uses two pieces of evidence together to make a stronger argument than either could make alone.']},
+      {g:'Essay craft',i:['Write your topic sentences after writing the paragraph — this forces the sentence to capture what you actually argued, not what you planned to argue.','Practise sequencing your paragraphs deliberately: arrange them so that each one builds on the one before rather than being a separate point.']}
+    ],
+    revise:[{g:'Key knowledge',i:['Revise a wider range of metalanguage: free indirect discourse, dramatic irony, unreliable narrator, allegory, extended metaphor, intertextuality.','Revisit how to write about authorial intent without over-claiming: "the author suggests" rather than "the author proves" or "the author shows".','Revise the structure of a sophisticated analytical paragraph: topic sentence → claim → evidence → analysis → connection to contention.']}],
+    develop:[{g:'Toward Level 8',i:['Begin exploring the complexity within the text — where ideas are not simple or resolved, where characters are contradictory, where the text resists easy interpretation.','Practise writing arguments that acknowledge what the text does not say, or what it assumes the reader already believes.','Begin to connect the text to its broader context — how does it reflect or challenge the values of the time and place in which it was written?']}]
+  },
+  8:{
+    practise:[
+      {g:'Analytical depth',i:['For every paragraph, ask: does this explain how and why, or just what? Rewrite any paragraph that only describes the text.','Practise layered evidence: first piece establishes the idea, second piece deepens or complicates it. Write a sentence that explicitly connects the two.','Write a paragraph that explores a tension or ambiguity in the text — where the meaning is not settled and the author invites interpretation.']},
+      {g:'Essay sophistication',i:['Write an introduction that does more than set up your argument — offer an interpretive claim about the text that shows original thinking.','Practise writing conclusions that synthesise: what has your analysis revealed about the text as a whole? What does it show about the human experience?']}
+    ],
+    revise:[{g:'Key knowledge',i:['Revise how to write about context with precision: it is not enough to say "this was written during X period" — explain how that shapes a specific choice in the text.','Revisit the difference between implicit and explicit meaning — what the text states directly vs what it implies, assumes or leaves unsaid.','Revise evaluative language and verbs of argument: "demonstrates", "interrogates", "subverts", "illuminates", "critiques", "positions the reader to".']}],
+    develop:[{g:'Toward Level 9',i:['Practise writing arguments that go beyond the prompt — develop your own interpretation of the text rather than simply agreeing or disagreeing with a given statement.','Begin to discuss how the text constructs the reader: how does it want you to feel, and what techniques does it use to guide your response?','Work on consistent analytical register throughout — every sentence should advance the argument, and none should describe rather than analyse.']}]
+  },
+  9:{
+    practise:[
+      {g:'Sophisticated analysis',i:['Write timed essays and then audit them: circle every sentence that describes rather than analyses. Rewrite those sentences.','Practise close reading at the level of specific words and syntax — analyse not just what a passage says but how the sentence itself creates meaning through structure and rhythm.','Write an essay paragraph that holds a tension within it — arguing a position while acknowledging its complexity or limitation.']},
+      {g:'Essay architecture',i:['Read your topic sentences in sequence. Do they constitute a coherent argument on their own? If not, revise until they do.','Write conclusions that elevate rather than summarise — what does your analysis of this text reveal about something beyond the text?']}
+    ],
+    revise:[{g:'Key knowledge',i:['Revise the distinction between reading a text (what it means to you) and analysing it (how it constructs meaning through deliberate choices) — strong responses do both.','Revisit the full range of your analytical metalanguage — be able to use any term with precision, not just name it.','Revise how to write about reader positioning: how does the text want readers to respond, and is that response complicated, denied or complicated by anything in the text?']}],
+    develop:[{g:'Extending and deepening',i:['Practise articulating your own interpretive position — a reading of the text that is yours, grounded in the text and defensible, rather than a rehearsal of standard interpretations.','Read critical or scholarly responses to texts and notice how they structure an argument — how do they balance close reading with broader claims?','Challenge yourself to write analytical responses where the structure of the essay itself makes an argument — where how you sequence your ideas is itself a form of interpretation.']}]
+  }
+};
+
+var selYear=null,selSkills={},openCats={},activeTab='practise';
+CATS.forEach(function(c){openCats[c.id]=true;});
+
+function buildYr(){
+  var el=document.getElementById('yr-btns');
+  el.innerHTML='';
+  [3,4,5,6,7,8,9].forEach(function(y){
+    var b=document.createElement('button');
+    b.className='yr-btn'+(selYear===y?' active':'');
+    b.textContent='Year '+y;
+    b.addEventListener('click',function(){selYear=y;buildYr();buildSkills();upd();});
+    el.appendChild(b);
+  });
+}
+
+function buildSkills(){
+  var col=document.getElementById('skill-cols');
+  col.innerHTML='';
+  CATS.forEach(function(cat){
+    var sc=cat.skills.filter(function(s){return selSkills[s.id];}).length;
+    var isO=openCats[cat.id];
+    var wrap=document.createElement('div');
+    wrap.className='category'+(isO?' open':'');
+    var hdr=document.createElement('div');
+    hdr.className='cat-hdr';
+    hdr.innerHTML='<div class="cat-icon" style="background:'+cat.color+'22;color:'+cat.color+'">'+cat.icon+'</div>'+
+      '<div class="cat-info"><div class="cat-title">'+cat.title+'</div><div class="cat-desc">'+cat.desc+'</div></div>'+
+      '<div class="cat-count">'+(sc>0?sc+' · ':'')+cat.skills.length+'</div>'+
+      '<div class="chevron">▼</div>';
+    hdr.addEventListener('click',function(){openCats[cat.id]=!openCats[cat.id];buildSkills();});
+    var list=document.createElement('div');
+    list.className='slist'+(isO?'':' hidden');
+    cat.skills.forEach(function(s){
+      var isSel=!!selSkills[s.id];
+      var inR=!selYear||s.levels.some(function(l){return l>=Math.max(3,YE[selYear]-2)&&l<=Math.min(9,YE[selYear]+2);});
+      var lvT=s.levels.map(function(l){return '<span class="lv lv'+l+'">L'+l+'</span>';}).join('');
+      var dLabel=s.dim==='read'?'Reading':'Written response';
+      var dCls=s.dim==='read'?'d-read':'d-write';
+      var btn=document.createElement('button');
+      btn.className='sbtn'+(isSel?' sel':'')+(inR?'':' dim');
+      btn.innerHTML='<div class="sinner"><div class="chk">'+(isSel?'✓':'')+'</div><div><div class="slabel">'+s.label+'</div><div class="smeta"><span class="stag t-'+s.solo+'">'+SL[s.solo]+'</span><span class="dtag '+dCls+'">'+dLabel+'</span>'+lvT+'</div></div></div>';
+      btn.addEventListener('click',function(){selSkills[s.id]=!selSkills[s.id];buildSkills();upd();});
+      list.appendChild(btn);
+    });
+    wrap.appendChild(hdr);wrap.appendChild(list);col.appendChild(wrap);
+  });
+}
+
+function calc(){
+  var sel=ALL.filter(function(s){return selSkills[s.id];});
+  if(!selYear||!sel.length)return null;
+  var lc={3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+  sel.forEach(function(s){s.levels.forEach(function(l){lc[l]++;});});
+  var mr=-1;sel.forEach(function(s){if(SR[s.solo]>mr)mr=SR[s.solo];});
+  var msk='pre';Object.keys(SR).forEach(function(k){if(SR[k]===mr)msk=k;});
+  function hR(l){return sel.some(function(s){return s.levels.indexOf(l)>=0&&(s.solo==='rel'||s.solo==='ext');});}
+  function hM(l){return sel.some(function(s){return s.levels.indexOf(l)>=0&&SR[s.solo]>=2;});}
+  function cn(l){return sel.filter(function(s){return s.levels.indexOf(l)>=0;}).length;}
+  var d=3;
+  if(hR(9)&&cn(9)>=2)d=9;else if(hR(8)&&cn(8)>=2)d=8;else if(hR(7)&&cn(7)>=2)d=7;
+  else if(hR(6)&&cn(6)>=2)d=6;else if(hM(5)&&cn(5)>=3)d=5;else if(hM(4)&&cn(4)>=2)d=4;
+  var nxt=Math.min(9,d+1);
+  var app=d<9&&(hR(nxt)||cn(nxt)>=2);
+  var diff=d-YE[selYear];
+  var ra=diff<=-2?'wb':diff<=-1?'bw':diff<=1?'at':diff<=2?'aw':'wa';
+  var sd={
+    pre:'They are attempting to respond to the text by retelling rather than interpreting — writing about what happened rather than what it means.',
+    uni:'They are making one clear point about the text — identifying an idea or making a single claim — but not yet developing or sustaining it across a full response.',
+    multi:'They are engaging with a range of ideas in the text and making multiple claims, showing familiarity with basic analytical structures and some use of evidence.',
+    rel:'They are connecting their reading to their writing — constructing arguments that draw on evidence, explain authorial intent, and sustain a position across the response.',
+    ext:'Their response demonstrates sophisticated, integrated analytical thinking — original interpretation, precise use of evidence, and a coherent argument that builds cumulatively.'
+  };
+  var rw={wb:'<strong>well below</strong> the expected standard for Year '+selYear,bw:'<strong>below</strong> the expected standard for Year '+selYear,at:'<strong>at</strong> the expected standard for Year '+selYear,aw:'<strong>above</strong> the expected standard for Year '+selYear,wa:'<strong>well above</strong> the expected standard for Year '+selYear};
+  return{d:d,ra:ra,lc:lc,narr:'This student is '+rw[ra]+'. They are demonstrating <strong>Victorian Curriculum Level '+d+'</strong> skills in Text Response. '+sd[msk]+(app?' They are beginning to show skills at Level '+nxt+'.':''),app:app,nxt:nxt};
+}
+
+function upd(){
+  var r=calc();
+  ['wb','bw','at','aw','wa'].forEach(function(x){document.getElementById('ra-'+x).classList.remove('lit');});
+  if(!r){
+    document.getElementById('lv-num').textContent='—';document.getElementById('lv-num').style.color='var(--ink-faint)';
+    document.getElementById('lv-lbl').textContent=selYear?'Tick skills to calculate':'Select a year level to begin';
+    document.getElementById('lv-sub').textContent='';document.getElementById('narr').innerHTML='Select a year level and tick skills this student is demonstrating.';
+    document.getElementById('pb-wrap').innerHTML='';document.getElementById('ra-desc').style.display='none';
+    document.getElementById('ns-card').style.display='none';
+    document.getElementById('sel-list').innerHTML='<div class="sel-empty">None selected.</div>';document.getElementById('sel-count').textContent='';return;
+  }
+  var d=r.d,ra=r.ra;
+  document.getElementById('lv-num').textContent=d;document.getElementById('lv-num').style.color=LC[d]||'#333';
+  var rt={wb:'Well Below',bw:'Below',at:'At Level',aw:'Above',wa:'Well Above'};
+  document.getElementById('lv-lbl').textContent='Level '+d+' · '+rt[ra];
+  document.getElementById('lv-sub').textContent=r.app?'Approaching Level '+r.nxt:'Victorian Curriculum Level '+d;
+  document.getElementById('ra-'+ra).classList.add('lit');
+  var rd={wb:'Approximately 18 months behind the expected standard for Year '+selYear+'.',bw:'Approximately 6 months behind the expected standard for Year '+selYear+'.',at:'Within 6 months of the expected standard for Year '+selYear+'.',aw:'Approximately 6 months ahead of the expected standard for Year '+selYear+'.',wa:'Approximately 12 or more months ahead of the expected standard for Year '+selYear+'.'};
+  var rde=document.getElementById('ra-desc');rde.style.display='block';rde.textContent=rd[ra];
+  document.getElementById('narr').innerHTML=r.narr;
+  var pb='';[3,4,5,6,7,8,9].forEach(function(l){if(r.lc[l]>0){var mx=ALL.filter(function(s){return s.levels.indexOf(l)>=0;}).length;var pt=Math.min(100,Math.round(r.lc[l]/mx*100));pb+='<div class="pb-row"><div class="pb-lbl" style="color:'+LC[l]+'">L'+l+'</div><div class="pb-track"><div class="pb-fill" style="width:'+pt+'%;background:'+LC[l]+'"></div></div><div class="pb-n">'+r.lc[l]+'</div></div>';}});
+  document.getElementById('pb-wrap').innerHTML=pb;
+  document.getElementById('ns-card').style.display='block';
+  renderNS(d);
+  var ss=ALL.filter(function(s){return selSkills[s.id];});
+  document.getElementById('sel-count').textContent=ss.length>0?'('+ss.length+')':'';
+  document.getElementById('sel-list').innerHTML=ss.length===0?'<div class="sel-empty">None selected.</div>':ss.map(function(s){return '<div class="sel-item"><div class="sdot" style="background:'+SC[s.solo]+'"></div><span>'+s.label+'</span></div>';}).join('');
+}
+
+function renderNS(lv){
+  var data=NS[lv];
+  var tabs=document.getElementById('ns-tabs');tabs.innerHTML='';
+  ['practise','revise','develop'].forEach(function(t){
+    var b=document.createElement('button');
+    b.className='ns-tab'+(activeTab===t?' active':'');
+    b.textContent=t.charAt(0).toUpperCase()+t.slice(1);
+    b.addEventListener('click',function(){activeTab=t;var res=calc();if(res)renderNS(res.d);});
+    tabs.appendChild(b);
+  });
+  var grps=(data&&data[activeTab])||[];
+  document.getElementById('ns-body').innerHTML=grps.length===0?'<div style="font-size:11px;color:var(--ink-faint);font-style:italic;">No actions for this tab.</div>':grps.map(function(g){return '<div class="ns-grp"><div class="ns-gt">'+g.g+'</div>'+g.i.map(function(item){return '<div class="ns-item"><div class="ns-dot"></div><span>'+item+'</span></div>';}).join('')+'</div>';}).join('');
+}
+
+document.getElementById('reset-btn').addEventListener('click',function(){selSkills={};buildSkills();upd();});
+buildYr();buildSkills();upd();
+</script>
+</body>
+</html>
